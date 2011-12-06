@@ -68,6 +68,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;; '(ispell-program-name "aspell")
  '(js-indent-level 2)
  '(org-agenda-files (quote ("~/.orgfiles/id29/embrocation.org"))))
 (custom-set-faces
@@ -331,28 +332,44 @@ region\) apply comment-or-uncomment to the current line"
 (global-set-key (kbd "C-x p d") 'bookmark-delete)
 
 ;; auctex
-(eval-after-load "tex" '(add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t))
 (eval-after-load "tex"
-  '(add-to-list
-    'TeX-command-list
-    '("ps2pdf" "ps2pdf %f %pf"
-      TeX-run-command t t :help "Convert .ps to .pdf") t))
-(eval-after-load "tex"
-  '(add-to-list
-    'TeX-command-list
-    '("xpdf" "open -a /Applications/Preview.app %pf"
-      TeX-run-command t t :help "Open .pdf file") t))
-(eval-after-load "tex"
-  '(add-to-list
-    'TeX-command-list
-    '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ 9\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
-      TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t))
-(setq TeX-PDF-mode nil)
+  '(progn
+     (add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t)
+     (add-to-list
+      'TeX-command-list
+      '("ps2pdf" "ps2pdf %f %pf"
+        TeX-run-command t t :help "Convert .ps to .pdf") t)
+     (add-to-list
+      'TeX-command-list
+      '("xpdf" "open -a /Applications/Preview.app %pf"
+        TeX-run-command t t :help "Open .pdf file") t)
+     (add-to-list
+      'TeX-command-list
+      '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ 9\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
+        TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t)))
+
+;; '(add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t))
+;; (eval-after-load "tex"
+;;   '(add-to-list
+;;     'TeX-command-list
+;;     '("ps2pdf" "ps2pdf %f %pf"
+;;       TeX-run-command t t :help "Convert .ps to .pdf") t))
+;; (eval-after-load "tex"
+;;   '(add-to-list
+;;     'TeX-command-list
+;;     '("xpdf" "open -a /Applications/Preview.app %pf"
+;;       TeX-run-command t t :help "Open .pdf file") t))
+;; (eval-after-load "tex"
+;;   '(add-to-list
+;;     'TeX-command-list
+;;     '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ 9\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
+;;       TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t))
 (add-hook 'LaTeX-mode-hook
           (lambda ()
             ;; make sure menu bar is on.  seems to be off by default
             ;; for some reason.
             (menu-bar-mode 1)
+            (setq TeX-PDF-mode nil)
             (require 'predictive)
             (predictive-mode t)))
 
@@ -411,6 +428,7 @@ region\) apply macro-math-eval-and-round-region to the current line"
 (setq refcard-dir "~/.emacs.d/refcards/")
 (defun open-refcard-dir-file (filename)
   "Opens reference card file located in <refcard-dir> given file name"
+  (interactive)
   (find-file (concat refcard-dir filename)))
 (defun open-refcard ()
   "Opens refcard.pdf"
@@ -429,3 +447,6 @@ region\) apply macro-math-eval-and-round-region to the current line"
 
 ;;idle-highlight-mode
 (setq idle-highlight-global-timer (run-with-idle-timer 0.01 :repeat 'idle-highlight-word-at-point))
+
+;; ispell
+(setq ispell-program-name "aspell")
