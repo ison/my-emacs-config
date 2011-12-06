@@ -102,7 +102,7 @@
 ;; marmalade/elpa
 ;; (require 'package)
 (eval-after-load "package"
- '(lambda ()
+ '(progn
     (add-to-list 'package-archives
             '("marmalade" . "http://marmalade-repo.org/packages/") t)
     (package-initialize)))
