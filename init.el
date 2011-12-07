@@ -428,13 +428,17 @@ region\) apply macro-math-eval-and-round-region to the current line"
 (setq refcard-dir "~/.emacs.d/refcards/")
 (defun open-refcard-dir-file (filename)
   "Opens reference card file located in <refcard-dir> given file name"
-  (interactive)
   (find-file (concat refcard-dir filename)))
-(defun open-refcard ()
+(defun open-refcard-emacs ()
   "Opens refcard.pdf"
   (interactive)
   (open-refcard-dir-file "refcard.pdf"))
-(global-set-key (kbd "s-r") 'open-refcard)
+(defun open-refcard-org ()
+  "Opens orgcard.pdf"
+  (interactive)
+  (open-refcard-dir-file "orgcard.pdf"))
+(global-set-key (kbd "s-r") 'open-refcard-emacs)
+(global-set-key (kbd "C-c s-o") 'open-refcard-org)
 
 ;; multi-web-mode
 (require 'multi-web-mode)
