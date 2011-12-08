@@ -37,7 +37,8 @@
                           "~/.emacs.d/elisp/rinari/"
                           "~/.emacs.d/elisp/rhtml/"
                           "~/.emacs.d/elisp/epresent/"
-                          "~/.emacs.d/elisp/multi-web-mode/")
+                          "~/.emacs.d/elisp/multi-web-mode/"
+                          "~/.emacs.d/elisp/matlab-emacs/")
                         load-path))
 
 ;; (let ((default-directory  "~/.emacs.d/elisp/"))
@@ -454,3 +455,36 @@ region\) apply macro-math-eval-and-round-region to the current line"
 
 ;; ispell
 (setq ispell-program-name "aspell")
+
+;; clojure-mode
+(defun esk-pretty-fn ()
+  (font-lock-add-keywords nil `(("(\\(fn\\>\\)"
+                                 (0 (progn (compose-region (match-beginning 1)
+                                                           (match-end 1)
+                                                           "\u0192") nil))))))
+(add-hook 'clojure-mode-hook 'esk-pretty-fn)
+
+;; make M-w copy from point to end of line if region is not defined
+(defun copy-region-or-line-as-kill ()
+  "Copies region to kill ring if region is define else
+copies the line from point to end of line."
+  (interactive)
+  (if (not mark-active)
+      (copy-region-as-kill
+       (point) (line-end-position))
+    (copy-region-as-kill (point) (mark))))
+(global-set-key (kbd "M-w") 'copy-region-or-line-as-kill)
+
+(require 'windmove)
+(windmove-default-keybindings 'super)
+
+;; matlab-mode
+(autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
+(autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
+(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+(setq matlab-shell-command-switches '("-nodesktop" "-nosplash"))
+(setq matlab-vers-on-startup t)
+(add-hook 'matlab-mode-hook
+          (lambda ()
+            (matlab-shell)
+            (split-window-horizontally)))
