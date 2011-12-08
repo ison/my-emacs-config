@@ -57,11 +57,17 @@
       (append '("~/.info/")
               Info-default-directory-list))
 
+;; custom visible bell
+(defun my-visible-bell ()
+  (set-face-background 'mode-line "red")
+  (run-at-time "0.8 sec" nil
+               '(lambda ()
+                  (set-face-background 'mode-line "#e2962f"))))
 (setq ring-bell-function
       (lambda ()
 	(unless (memq this-command
 		      '(isearch-abort abort-recursive-edit exit-minibuffer keyboard-quit))
-	  (ding))))
+	  (my-visible-bell))))
 
 ;; machine generated
 (custom-set-variables
