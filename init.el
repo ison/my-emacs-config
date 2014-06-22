@@ -2,7 +2,14 @@
 
 (server-start)
 
-(global-set-key (kbd "<S-s-return>") 'ns-toggle-fullscreen)
+(defun toggle-fullscreen ()
+  "Toggle full screen"
+  (interactive)
+  (set-frame-parameter
+     nil 'fullscreen
+     (when (not (frame-parameter nil 'fullscreen)) 'fullboth)))
+
+(global-set-key (kbd "<S-s-return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
 
 ;; no new frames on file clicking
@@ -18,16 +25,19 @@
 (setq load-path (append '("~/.emacs.d/elisp/"
                           ;; "~/.emacs.d/elisp/color-theme-6.6.0/"
                           ;; "~/.emacs.d/elisp/color-theme-wombat/"
+                          ;; "~/.emacs.d/elisp/popup-el/"
+                          "~/.emacs.d/elisp/auto-complete/lib/popup"
+                          "~/.emacs.d/elisp/auto-complete/lib/fuzzy"
                           "~/.emacs.d/elisp/auto-complete/"
                           "~/.emacs.d/elisp/auto-complete-clang/"
                           "~/.emacs.d/elisp/auto-complete-etags/"
                           "~/.emacs.d/elisp/etags-table/"
-                          "~/.emacs.d/elisp/slime/"
+                          ;; "~/.emacs.d/elisp/slime/"
                           "~/.emacs.d/elisp/swank-js/"
                           ;; "~/.emacs.d/elisp/php-mode/"
                           "~/.emacs.d/elisp/php-mode-1.5.0/"
                           "~/.emacs.d/elisp/php-completion/"
-                          "~/.emacs.d/elisp/js2-mode/"
+                          ;; "~/.emacs.d/elisp/js2-mode/"
                           ;; "~/.emacs.d/elisp/org-mode/lisp"
                           ;; "~/.emacs.d/elisp/org-mode/contrib/lisp/"
                           "~/.emacs.d/elisp/predictive/"
@@ -38,15 +48,20 @@
                           "~/.emacs.d/elisp/rhtml/"
                           "~/.emacs.d/elisp/epresent/"
                           "~/.emacs.d/elisp/multi-web-mode/"
-                          "~/.emacs.d/elisp/matlab-emacs/")
+                          "~/.emacs.d/elisp/matlab-emacs/"
+                          "~/.emacs.d/elisp/evernote-mode/"
+                          "~/.emacs.d/elisp/rvm.el/"
+                          "~/.emacs.d/elisp/less-css-mode/"
+                          "~/.emacs.d/elisp/ESS/"
+                          "~/.emacs.d/elisp/ESS/lisp")
                         load-path))
 
 ;; (let ((default-directory  "~/.emacs.d/elisp/"))
 ;;      (normal-top-level-add-subdirs-to-load-path))
 
 ;; add /usr/local/bin/ to exec-path.  seems to be missing it by default.
-(add-to-list 'exec-path "/usr/local/bin/")
-
+;; (add-to-list 'exec-path "/usr/local/bin/")
+;; (add-to-list 'exec-path "/usr/texbin/")
 ;; get PATH env var from bashrc
 (if (not (getenv "TERM_PROGRAM"))
     (setenv "PATH"
@@ -75,9 +90,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- ;; '(ispell-program-name "aspell")
+ '(LaTeX-verbatim-environments (quote ("verbatim" "verbatim*" "lstlisting")))
  '(js-indent-level 2)
- '(org-agenda-files (quote ("~/.orgfiles/id29/embrocation.org"))))
+ '(mlint-programs (quote ("/Applications/MATLAB_R2014a.app/bin/maci64/mlint" "mac/mlint")))
+ '(org-agenda-files (quote ("~/.orgfiles/lrc.org" "~/.orgfiles/embrocation.org"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -108,11 +124,14 @@
 
 ;; marmalade/elpa
 ;; (require 'package)
+;;
 (eval-after-load "package"
- '(progn
-    (add-to-list 'package-archives
-            '("marmalade" . "http://marmalade-repo.org/packages/") t)
-    (package-initialize)))
+  '(progn
+     (setq package-enable-at-startup nil)
+     (add-to-list 'package-archives
+             '("marmalade" . "http://marmalade-repo.org/packages/") t)
+     (package-initialize)))
+
 
 ;; transparencies
 (set-frame-parameter (selected-frame) 'alpha '(85 50))
@@ -168,8 +187,8 @@
 	    (define-key js2-mode-map (kbd "C-+") 'js2-mode-toggle-hide-functions)))
 
 ;; battery mode
-(setq battery-mode-line-format "+[%b%p%%]-")
-(display-battery-mode t)
+;; (setq battery-mode-line-format "+[%b%p%%]-")
+;; (display-battery-mode t)
 
 ;; text-mode
 ;; (add-hook 'text-mode-hook
@@ -251,20 +270,25 @@ region\) apply comment-or-uncomment to the current line"
 (add-to-list 'ac-sources 'ac-source-etags)
 (setq ac-etags-use-document t)
 
+;; (defun ac-octave-mode-setup ()
+;;   (setq ac-sources '(ac-source-octave)))
+;; (add-hook 'octave-mode-hook
+;;           '(lambda () (ac-octave-mode-setup)))
+
 ;; etags table
 (require 'etags-table)
 (setq etags-table-search-up-depth 10)
 
 ;; slime, slime-js
-(setq inferior-lisp-program "/usr/local/bin/sbcl")
-(require 'slime-autoloads)
-(slime-setup '(slime-repl))
-(add-hook 'js2-mode-hook
-          (lambda ()
-            (require 'slime)
-            (slime-setup '(slime-repl slime-js))
-            (local-set-key [f5] 'slime-js-reload)
-            (slime-js-minor-mode 1)))
+;; (setq inferior-lisp-program "/usr/local/bin/sbcl")
+;; (require 'slime-autoloads)
+;; (slime-setup '(slime-repl))
+;; (add-hook 'js2-mode-hook
+;;           (lambda ()
+;;             (require 'slime)
+;;             (slime-setup '(slime-repl slime-js))
+;;             (local-set-key [f5] 'slime-js-reload)
+;;             (slime-js-minor-mode 1)))
 
 ;; auto-complete
 ;; (ac-config-default)
@@ -272,6 +296,8 @@ region\) apply comment-or-uncomment to the current line"
   (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
 (defun my-ac-php-mode-setup ()
   (add-to-list 'ac-sources 'ac-source-php-completion))
+(defun my-ac-octave-mode-setup ()
+  (setq ac-sources (append '(ac-source-octave) ac-sources)))
 (defun my-ac-config ()
   (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
   (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
@@ -280,6 +306,8 @@ region\) apply comment-or-uncomment to the current line"
   (add-hook 'css-mode-hook 'ac-css-mode-setup)
   (add-hook 'php-mode-hook 'my-ac-php-mode-setup)
   (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  (add-hook 'octave-mode-hook 'my-ac-octave-mode-setup)
+  (add-hook 'matlab-mode-hook 'my-ac-octave-mode-setup)
   (global-auto-complete-mode t))
 (my-ac-config)
 
@@ -298,7 +326,7 @@ region\) apply comment-or-uncomment to the current line"
 
 ;; ac-slime
 ;; (require 'ac-slime)
-(add-hook 'slime-mode-hook 'set-up-slime-ac)
+;; (add-hook 'slime-mode-hook 'set-up-slime-ac)
 
 ;; doc view
 ;; (setq auto-mode-alist (cons '("\\.pdf$" . doc-view-mode) auto-mode-alist))
@@ -320,6 +348,9 @@ region\) apply comment-or-uncomment to the current line"
           (lambda ()
             (load "epresent")
             (auto-fill-mode -1)))
+(setq org-directory "~/.orgfiles")
+(setq org-mobile-inbox-for-pull "~/.orgfiles/inbox.org")
+(setq org-mobile-directory "~/Dropbox/MobileOrg")
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
@@ -352,8 +383,15 @@ region\) apply comment-or-uncomment to the current line"
         TeX-run-command t t :help "Open .pdf file") t)
      (add-to-list
       'TeX-command-list
-      '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ 9\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
-        TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t)))
+      '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ XI\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
+        TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t)
+     (add-to-list
+      'TeX-command-list
+      '("Glossary" "makeglossaries %s"
+        TeX-run-command t t :help "Creates glossary") t)
+     ;; (
+     ;;    "lstlisting")
+     ))
 
 ;; '(add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t))
 ;; (eval-after-load "tex"
@@ -376,9 +414,9 @@ region\) apply comment-or-uncomment to the current line"
             ;; make sure menu bar is on.  seems to be off by default
             ;; for some reason.
             (menu-bar-mode 1)
-            (setq TeX-PDF-mode nil)
-            (require 'predictive)
-            (predictive-mode t)))
+            (setq TeX-PDF-mode nil)))
+            ;; (require 'predictive)
+            ;; (predictive-mode t)))
 
 ;; nxhtml
 ;; (load "~/.emacs.d/elisp/nxhtml/autostart")
@@ -451,16 +489,25 @@ region\) apply macro-math-eval-and-round-region to the current line"
 (require 'multi-web-mode)
 (setq mweb-default-major-mode 'html-mode)
 (setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-                  (js-mode "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
+                  (js2-mode "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
                   (css-mode "<style +type=\"text/css\"[^>]*>" "</style>")))
 (setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
 (multi-web-global-mode 1)
+;; html mode
+(add-hook 'html-mode-hook
+          (lambda ()
+            (auto-fill-mode -1)))
 
-;;idle-highlight-mode
+;; css
+(add-hook 'css-mode-hook
+          (lambda ()
+            (setq css-indent-offset 2)))
+
+;; idle-highlight-mode
 (setq idle-highlight-global-timer (run-with-idle-timer 0.01 :repeat 'idle-highlight-word-at-point))
 
 ;; ispell
-(setq ispell-program-name "aspell")
+(setq ispell-program-name "/usr/local/bin/aspell")
 
 ;; clojure-mode
 (defun esk-pretty-fn ()
@@ -484,13 +531,107 @@ copies the line from point to end of line."
 (require 'windmove)
 (windmove-default-keybindings 'super)
 
+
+
 ;; matlab-mode
-(autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
-(autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
-(add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
+;; (autoload 'matlab-mode "matlab" "Enter MATLAB mode." t)
+;; (autoload 'matlab-shell "matlab" "Interactive MATLAB mode." t)
+;; (add-to-list 'auto-mode-alist '("\\.m$" . matlab-mode))
 (setq matlab-shell-command-switches '("-nodesktop" "-nosplash"))
 (setq matlab-vers-on-startup t)
+(setq matlab-shell-command "/usr/local/bin/matlab")
+;; '(matlab-shell-command "/usr/local/bin/matlab")
+(load-library "matlab-load")
+(matlab-cedet-setup)
+
+;; (defun buffer-exists (buffname)
+;;   (not (eq nil (get-buffer buffname))))
+(defun matlab-shell-split-win ()
+  "Starts MATLAB shell splitting the current window horizontally."
+  (interactive)
+  (progn
+    (if (= (count-windows) 1)
+        (split-window-horizontally))
+    (if (matlab-shell-active-p)
+        (if (not (string= (buffer-name) "*MATLAB*"))
+            (progn
+              (other-window 1)
+              (switch-to-buffer "*MATLAB*")))
+      (progn
+        (other-window 1)
+        (matlab-shell)
+        (other-window -1)))))
+(defun matlab-shell-exit-and-close-window ()
+  "Exits MATLAB shell and closes the window"
+  (interactive)
+  (progn
+    (walk-windows
+     '(lambda (wx)
+        (select-window wx)
+        (if (string= (buffer-name) "*MATLAB*")
+            (progn
+              (if (matlab-shell-active-p)
+                  (matlab-shell-exit))
+              (if (> (count-windows) 1)
+                  (delete-window))))))
+    (if (matlab-shell-active-p)
+        (progn
+          (switch-to-buffer "*MATLAB*")
+          (matlab-shell-exit)
+          ;; (previous-buffer)
+          ))))
+(global-set-key (kbd "C-c m") 'matlab-shell)
+(global-set-key (kbd "C-c C-m") 'matlab-shell-split-win)
+(global-set-key (kbd "C-c C-n") 'matlab-shell-exit-and-close-window)
+
 (add-hook 'matlab-mode-hook
-          (lambda ()
-            (matlab-shell)
-            (split-window-horizontally)))
+          '(lambda ()
+             ;; (auto-complete-mode)
+             (setq fill-column 160)
+             (local-set-key (kbd "C-<tab>") 'matlab-toggle-show-mlint-warnings)
+             (local-set-key (kbd "C-c m") 'matlab-shell)
+             (local-set-key (kbd "C-c C-m") 'matlab-shell-split-win)
+             (local-set-key (kbd "C-c C-n") 'matlab-shell-exit-and-close-window)))
+
+
+;; (add-hook 'matlab-mode-hook
+;;           '(lambda () (ac-octave-)))
+
+;; (add-hook 'matlab-mode-hook
+;;           (lambda ()
+;;             (matlab-shell)
+;;             (split-window-horizontally)))
+
+;; less-css-mode
+(autoload 'less-css-mode "less-css-mode" "Enter Less CSS mode." t)
+(add-to-list 'auto-mode-alist '("\\.less$" . less-css-mode))
+
+;; desktop save mode
+;; (desktop-save-mode 1)
+
+
+;;
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+
+;; rvm integration
+;; (require 'rvm)
+;; (rvm-use-default)
+
+;; evernote-mode
+;; (require 'evernote-mode)
+;; (setq evernote-username "aisforanagrams") ; optional: you can use this username as default.
+;; (setq evernote-enml-formatter-command '("w3m" "-dump" "-I" "UTF8" "-O" "UTF8")) ; option
+;; (global-set-key "\C-cec" 'evernote-create-note)
+;; (global-set-key "\C-ceo" 'evernote-open-note)
+;; (global-set-key "\C-ces" 'evernote-search-notes)
+;; (global-set-key "\C-ceS" 'evernote-do-saved-search)
+;; (global-set-key "\C-cew" 'evernote-write-note)
+;; (global-set-key "\C-cep" 'evernote-post-region)
+;; (global-set-key "\C-ceb" 'evernote-browser)
+
+
+;; ESS
+(load "ess-site")
+;; (eval-after-load "ESS"
+;;   '(progn
+;;      (load "ess-site")))
