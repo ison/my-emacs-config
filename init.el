@@ -1,3 +1,4 @@
+;;; init.el
 (setq inhibit-startup-message t)
 
 (server-start)
@@ -9,8 +10,20 @@
      nil 'fullscreen
      (when (not (frame-parameter nil 'fullscreen)) 'fullboth)))
 
+(defconst mlint-location '("/Applications/MATLAB_R2017a.app/bin/maci64/mlint" "mac/mlint"))
+
 (global-set-key (kbd "<S-s-return>") 'toggle-fullscreen)
 (global-set-key (kbd "C-c k") 'browse-kill-ring)
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+
+;; default frame size
+(add-to-list 'default-frame-alist '(left . 0))
+(add-to-list 'default-frame-alist '(top . 0))
+(add-to-list 'default-frame-alist '(height . 60))
+(add-to-list 'default-frame-alist '(width . 202))
+
+;; default fill columns
+(setq-default fill-column 99)
 
 ;; no new frames on file clicking
 (setq ns-pop-up-frames nil)
@@ -23,49 +36,13 @@
 
 ;; load path
 (setq load-path (append '("~/.emacs.d/elisp/"
-                          ;; "~/.emacs.d/elisp/color-theme-6.6.0/"
-                          ;; "~/.emacs.d/elisp/color-theme-wombat/"
-                          ;; "~/.emacs.d/elisp/popup-el/"
-                          "~/.emacs.d/elisp/auto-complete/lib/popup"
-                          "~/.emacs.d/elisp/auto-complete/lib/fuzzy"
-                          "~/.emacs.d/elisp/auto-complete/"
-                          "~/.emacs.d/elisp/auto-complete-clang/"
-                          "~/.emacs.d/elisp/auto-complete-etags/"
-                          "~/.emacs.d/elisp/etags-table/"
-                          ;; "~/.emacs.d/elisp/slime/"
-                          "~/.emacs.d/elisp/swank-js/"
-                          ;; "~/.emacs.d/elisp/php-mode/"
-                          "~/.emacs.d/elisp/php-mode-1.5.0/"
-                          "~/.emacs.d/elisp/php-completion/"
-                          ;; "~/.emacs.d/elisp/js2-mode/"
-                          ;; "~/.emacs.d/elisp/org-mode/lisp"
-                          ;; "~/.emacs.d/elisp/org-mode/contrib/lisp/"
-                          "~/.emacs.d/elisp/predictive/"
-                          "~/.emacs.d/elisp/predictive/latex/"
-                          "~/.emacs.d/elisp/predictive/texinfo/"
-                          "~/.emacs.d/elisp/predictive/html/"
-                          "~/.emacs.d/elisp/rinari/"
-                          "~/.emacs.d/elisp/rhtml/"
-                          "~/.emacs.d/elisp/epresent/"
-                          "~/.emacs.d/elisp/multi-web-mode/"
-                          "~/.emacs.d/elisp/matlab-emacs/"
-                          "~/.emacs.d/elisp/evernote-mode/"
-                          "~/.emacs.d/elisp/rvm.el/"
-                          "~/.emacs.d/elisp/less-css-mode/"
-                          "~/.emacs.d/elisp/ESS/"
-                          "~/.emacs.d/elisp/ESS/lisp")
+                          ;"~/.emacs.d/elisp/matlab-mode/"
+                          )
                         load-path))
 
-;; (let ((default-directory  "~/.emacs.d/elisp/"))
-;;      (normal-top-level-add-subdirs-to-load-path))
+(let ((default-directory "/usr/local/share/emacs/site-lisp/"))
+  (normal-top-level-add-subdirs-to-load-path))
 
-;; add /usr/local/bin/ to exec-path.  seems to be missing it by default.
-;; (add-to-list 'exec-path "/usr/local/bin/")
-;; (add-to-list 'exec-path "/usr/texbin/")
-;; get PATH env var from bashrc
-(if (not (getenv "TERM_PROGRAM"))
-    (setenv "PATH"
-            (shell-command-to-string "source $HOME/.bashrc && printf $PATH")))
 
 ;; info path
 (setq Info-default-directory-list
@@ -74,10 +51,11 @@
 
 ;; custom visible bell
 (defun my-visible-bell ()
+  (defvar-local mode-line-bgcolor (face-attribute 'mode-line :background))
   (set-face-background 'mode-line "red")
   (run-at-time "0.8 sec" nil
                '(lambda ()
-                  (set-face-background 'mode-line "#e2962f"))))
+                  (set-face-background 'mode-line mode-line-bgcolor))))
 (setq ring-bell-function
       (lambda ()
 	(unless (memq this-command
@@ -91,9 +69,17 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(LaTeX-verbatim-environments (quote ("verbatim" "verbatim*" "lstlisting")))
+ '(custom-safe-themes
+   (quote
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "108b3724e0d684027c713703f663358779cc6544075bc8fd16ae71470497304f" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default)))
  '(js-indent-level 2)
- '(mlint-programs (quote ("/Applications/MATLAB_R2014a.app/bin/maci64/mlint" "mac/mlint")))
- '(org-agenda-files (quote ("~/.orgfiles/lrc.org" "~/.orgfiles/embrocation.org"))))
+ '(mlint-programs mlint-location)
+ '(org-agenda-files
+   (quote
+    ("~/.orgfiles/lrc.org" "~/.orgfiles/embrocation.org")))
+ '(package-selected-packages
+   (quote
+    (auctex-latexmk auctex-lua markdown-preview-mode markdown-mode matlab-mode zenburn-theme web-mode w3m sr-speedbar smex smart-mode-line-powerline-theme paredit osx-lib multi-web-mode memory-usage magithub macro-math levenshtein less-css-mode js2-mode ido-ubiquitous idle-highlight-mode idle-highlight icomplete+ hc-zenburn-theme git-rebase-mode git-commit-mode fuzzy flyspell-popup flyspell-lazy flycheck find-file-in-project exec-path-from-shell etags-table etags-select company-statistics company-math company-jedi company-cmake company-c-headers company-auctex cmake-mode browse-kill-ring auto-complete-octave auto-complete-etags auto-complete-clang anything-obsolete anything-match-plugin anything-config anything-complete anything ac-slime ac-cider-compliment))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -109,9 +95,20 @@
 ;;   '(lambda ()
 ;;      (color-theme-initialize)
 ;;      (color-theme-wombat)))
-(setq custom-safe-themes t)
-(setq custom-theme-directory "~/.emacs.d/themes/")
-(load-theme 'tabmow t nil)
+;; (setq custom-safe-themes t)
+;; (setq custom-theme-directory "~/.emacs.d/themes/")
+;;(load-theme 'tabmow t nil)
+(defun custom-theme-init ()
+  (progn
+    (load-theme 'hc-zenburn t)
+    ;; smart mode line
+    (sml/setup)
+    ;; power line
+    (powerline-center-theme)
+    ;; custom colors
+    (set-face-background 'hl-line (face-attribute 'region :background))
+    (set-face-background 'region (face-attribute 'isearch :background))))
+(add-hook 'after-init-hook 'custom-theme-init)
 
 ;; get rid of useless shit
 (toggle-scroll-bar -1)
@@ -125,17 +122,31 @@
 ;; marmalade/elpa
 ;; (require 'package)
 ;;
-(eval-after-load "package"
-  '(progn
-     (setq package-enable-at-startup nil)
-     (add-to-list 'package-archives
-             '("marmalade" . "http://marmalade-repo.org/packages/") t)
-     (package-initialize)))
+(require 'package)
+(add-to-list 'package-archives
+             '("marmalade" .
+               "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/"))
+(package-initialize)
+(global-set-key (kbd "C-c C-p") 'package-list-packages)
 
+;;(Eval-After-Load "package"
+;;  '(progn
+;;     (setq package-enable-at-startup nil)
+;;     (add-to-list 'package-archives
+;;                  '("marmalade" . "http://marmalade-repo.org/packages/") t)
+;;     (add-to-list 'package-archives
+;;                  '("melpa" . "http://melpa.milkbox.net/packages/"))
+;;     (package-initialize)))
+
+;; path variable
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 ;; transparencies
-(set-frame-parameter (selected-frame) 'alpha '(85 50))
-(add-to-list 'default-frame-alist '(alpha 85 50))
+(set-frame-parameter (selected-frame) 'alpha '(95 50))
+(add-to-list 'default-frame-alist '(alpha 95 50))
 
 ;; no trailing whitespaces
 (add-hook 'before-save-hook (lambda () (delete-trailing-whitespace)))
@@ -143,6 +154,7 @@
 ;; ido-mode
 (setq ido-auto-merge-delay-time 99999)
 (setq ido-enable-flex-matching t)
+(setq ido-use-virtual-buffers t)
 (defun ido-find-file-in-tag-files ()
   (interactive)
   (save-excursion
@@ -153,24 +165,7 @@
       (ido-completing-read
        "Project file: " (tags-table-files) nil t)))))
 (global-set-key (kbd "C-c p") 'ido-find-file-in-tag-files)
-;; (defun ido-goto-bookmark (bookmark)
-;;   (interactive
-;;    (list (bookmark-completing-read
-;;           "Jump to bookmark"
-;;           bookmark-current-bookmark)))
-;;   (unless bookmark
-;;     (error "No bookmark specified"))
-;;   (let ((enable-recursive-minibuffers t)
-;;         (filename (bookmark-get-filename bookmark)))
-;;     (ido-set-current-directory
-;;      (if (file-directory-p filename)
-;;          filename
-;;        (file-name-directory filename)))
-;;     (setq ido-exit        'refresh
-;;           ido-text-init   ido-text
-;;           ido-rotate-temp t)
-;;     (exit-minibuffer)))
-;; (global-set-key (kbd "C-M-b") 'ido-goto-bookmark)
+
 
 ;; js2-mode
 ;; (setq js2-basic-offset 4)
@@ -209,11 +204,6 @@ region\) apply comment-or-uncomment to the current line"
         (comment-or-uncomment-region (mark) (point)))))
 (global-set-key (kbd "C-`") 'comment-or-uncomment-region-or-line)
 
-;; cursor color
-;; (add-to-list 'default-frame-alist '(cursor-color . "red"))
-
-;; region color
-;; (set-face-background 'region "royalblue3")
 
 ;; octave
 (setq inferior-octave-program "/usr/local/bin/octave")
@@ -226,15 +216,35 @@ region\) apply comment-or-uncomment to the current line"
               'comint-next-input)))
 
 ;; php-mode
-(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
-;; (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
-;; (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
-(add-hook 'php-mode-hook
-          (lambda ()
-            (require 'php-completion)
-            (php-completion-mode t)
-            (define-key php-mode-map (kbd "C-o") 'phpcmp-complete)
-            (hs-minor-mode 1)))
+;; (autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+;; ;; (add-to-list 'auto-mode-alist '("\\.php$" . php-mode))
+;; ;; (add-to-list 'auto-mode-alist '("\\.inc$" . php-mode))
+;; (add-hook 'php-mode-hook
+;;           (lambda ()
+;;             (require 'php-completion)
+;;             (php-completion-mode t)
+;;             (define-key php-mode-map (kbd "C-o") 'phpcmp-complete)
+;;             (hs-minor-mode 1)))
+
+
+;; web-mode
+(add-to-list 'auto-mode-alist '("\\.phtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.tpl\\.php\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.[agj]sp\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.as[cp]x\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.mustache\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.djhtml\\'" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
+
+
+(defun my-web-mode-hook ()
+  "Hooks for Web mode."
+  (progn
+    (setq web-mode-markup-indent-offset 2)
+    (setq web-mode-css-indent-offset 2)
+    (setq web-mode-code-indent-offset 2)))
+(add-hook 'web-mode-hook 'my-web-mode-hook)
 
 ;; hide-show
 (defun toggle-hiding ()
@@ -256,60 +266,59 @@ region\) apply comment-or-uncomment to the current line"
 (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
 (add-hook 'lisp-mode-hook 'hs-minor-mode)
 (add-hook 'html-mode-hook 'hs-minor-mode)
+(add-hook 'web-mode-hook 'hs-minor-mode)
 ;; (add-hook 'rhtml-mode-hook 'hs-minor-mode)
 (add-hook 'objc-mode-hook 'hs-minor-mode)
 ;; (add-hook 'php-mode-hook 'hs-minor-mode)
 
 ;; auto-complete, auto-complete-clang
-(require 'auto-complete-config)
-(require 'auto-complete-clang)
-(require 'auto-complete-etags)
-(add-to-list 'ac-dictionary-directories "~/.emacs.d/elisp/auto-complete/dict/")
-(add-to-list 'ac-modes 'objc-mode)
-(define-key ac-completing-map "\ESC/" 'ac-stop)
-(add-to-list 'ac-sources 'ac-source-etags)
-(setq ac-etags-use-document t)
+;; (require 'auto-complete-config)
+;; (setq ac-auto-start 2
+;;       ac-override-local-map nil
+;;       ac-use-menu-map t
+;;       ac-candidate-limit 20)
 
-;; (defun ac-octave-mode-setup ()
-;;   (setq ac-sources '(ac-source-octave)))
-;; (add-hook 'octave-mode-hook
-;;           '(lambda () (ac-octave-mode-setup)))
+;; (require 'auto-complete-clang)
+;; (require 'auto-complete-etags)
+;; ;; (add-to-list 'ac-dictionary-directories "~/.emacs.d/elpa/auto-complete-20150618.1949/dict/")
+;; (add-to-list 'ac-modes 'objc-mode)
+;; (define-key ac-completing-map "\ESC/" 'ac-stop)
+;; (add-to-list 'ac-sources 'ac-source-etags)
+;; (setq ac-etags-use-document t)
 
-;; etags table
-(require 'etags-table)
-(setq etags-table-search-up-depth 10)
 
-;; slime, slime-js
-;; (setq inferior-lisp-program "/usr/local/bin/sbcl")
-;; (require 'slime-autoloads)
-;; (slime-setup '(slime-repl))
-;; (add-hook 'js2-mode-hook
-;;           (lambda ()
-;;             (require 'slime)
-;;             (slime-setup '(slime-repl slime-js))
-;;             (local-set-key [f5] 'slime-js-reload)
-;;             (slime-js-minor-mode 1)))
+;; ;; (defun ac-octave-mode-setup ()
+;; ;;   (setq ac-sources '(ac-source-octave)))
+;; ;; (add-hook 'octave-mode-hook
+;; ;;           '(lambda () (ac-octave-mode-setup)))
 
-;; auto-complete
-;; (ac-config-default)
-(defun my-ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
-(defun my-ac-php-mode-setup ()
-  (add-to-list 'ac-sources 'ac-source-php-completion))
-(defun my-ac-octave-mode-setup ()
-  (setq ac-sources (append '(ac-source-octave) ac-sources)))
-(defun my-ac-config ()
-  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
-  (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-  (add-hook 'css-mode-hook 'ac-css-mode-setup)
-  (add-hook 'php-mode-hook 'my-ac-php-mode-setup)
-  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  (add-hook 'octave-mode-hook 'my-ac-octave-mode-setup)
-  (add-hook 'matlab-mode-hook 'my-ac-octave-mode-setup)
-  (global-auto-complete-mode t))
-(my-ac-config)
+;; ;; etags table
+;; (require 'etags-table)
+;; (setq etags-table-search-up-depth 10)
+
+
+;; ;; auto-complete
+;; ;; (ac-config-default)
+;; (defun my-ac-cc-mode-setup ()
+;;   (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
+;; (defun my-ac-php-mode-setup ()
+;;   (add-to-list 'ac-sources 'ac-source-php-completion))
+;; (defun my-ac-octave-mode-setup ()
+;;   (setq ac-sources (append '(ac-source-octave) ac-sources)))
+;; (defun my-ac-config ()
+;;   (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+;;   (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+;;   (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+;;   (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+;;   (add-hook 'css-mode-hook 'ac-css-mode-setup)
+;;   ;; (add-hook 'php-mode-hook 'my-ac-php-mode-setup)
+;;   (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+;;   (add-hook 'octave-mode-hook 'my-ac-octave-mode-setup)
+;;   (add-hook 'matlab-mode-hook 'my-ac-octave-mode-setup)
+;;   (global-auto-complete-mode t)
+;;   )
+;; (my-ac-config)
+
 
 ;; yasnippet
 ;; (require 'yasnippet)
@@ -324,9 +333,90 @@ region\) apply comment-or-uncomment to the current line"
 ;;           '(lambda ()
 ;;              (setq yas/mode-symbol 'html-mode)))
 
-;; ac-slime
-;; (require 'ac-slime)
-;; (add-hook 'slime-mode-hook 'set-up-slime-ac)
+
+;; company
+(require 'company)
+
+;; to solve conflict with using tab for company completion and yasnippet
+;; (defun check-expansion ()
+;;     (save-excursion
+;;       (if (looking-at "\\_>") t
+;;         (backward-char 1)
+;;         (if (looking-at "\\.") t
+;;           (backward-char 1)
+;;           (if (looking-at "->") t nil)))))
+;; (defun do-yas-expand ()
+;;     (let ((yas/fallback-behavior 'return-nil))
+;;       (yas/expand)))
+;; (defun tab-indent-or-complete ()
+;;     (interactive)
+;;     (if (minibufferp)
+;;         (minibuffer-complete)
+;;       (if (or (not yas/minor-mode)
+;;               (null (do-yas-expand)))
+;;           (if (check-expansion)
+;;               (company-complete-common)
+;;             (indent-for-tab-command)))))
+
+;; (define-key company-active-map (kbd "<tab>") 'tab-indent-or-complete)
+;; (require 'company-auctex)
+(add-hook 'after-init-hook 'global-company-mode)
+(add-to-list 'company-transformers 'company-sort-by-occurrence)
+(add-hook 'after-init-hook 'company-statistics-mode)
+;; (setq company-show-numbers t)
+
+(defun my-latex-mode-company-setup ()
+  (progn
+    (company-auctex-init)
+    (setq-local company-backends
+                (append '(company-math-symbols-latex)
+                        company-backends))))
+
+;; (defun my-matlab-mode-company-setup ()
+;;   (setq-local company-backends
+;;               (append '(company-emacs)
+;;                       company-backends)))
+
+(add-to-list 'company-backends 'company-matlab-shell)
+
+;; (require 'color)
+
+;; (let ((bg (face-attribute 'default :background)))
+;;   (custom-set-faces
+;;    `(company-tooltip ((t (:inherit default :background ,(color-lighten-name bg 2)))))
+;;    `(company-scrollbar-bg ((t (:background ,(color-lighten-name bg 10)))))
+;;    `(company-scrollbar-fg ((t (:background ,(color-lighten-name bg 5)))))
+;;    `(company-tooltip-selection ((t (:inherit font-lock-function-name-face))))
+;;    `(company-tooltip-common ((t (:inherit font-lock-constant-face))))))
+
+;; company backend
+;; --------------
+;; elisp
+;; (require 'finder)
+
+
+(defun company-elisp-finder-keyword-backend (command &optional arg &rest ign)
+  "`company-backend' for finder-keywords."
+  (cl-case command
+    (prefix
+     (and (require 'finder nil t)
+          (or (company-grab ":group '\\(\\(\\sw\\|\\s_\\)*\\)" 1)
+              (company-grab "Keywords:.*[ \t]+\\(\\(\\sw\\|\\s_\\)*\\)" 1))))
+    (candidates (all-completions arg finder-known-keywords))
+    (meta (cdr (assoc (intern arg) finder-known-keywords)))))
+
+(defun my-elisp-mode-company-setup ()
+  (setq-local company-backends
+              (append '(company-elisp-finder-keyword-backend)
+                      company-backends)))
+(add-hook 'emacs-lisp-mode-hook 'my-elisp-mode-company-setup)
+;; (add-to-list 'company-backends 'company-elisp-finder-keyword-backend)
+
+
+;; flycheck
+(require 'flycheck)
+(global-flycheck-mode t)
+
 
 ;; doc view
 ;; (setq auto-mode-alist (cons '("\\.pdf$" . doc-view-mode) auto-mode-alist))
@@ -369,14 +459,17 @@ region\) apply comment-or-uncomment to the current line"
     (add-to-list 'bookmark-alist latest)))
 (global-set-key (kbd "C-x p d") 'bookmark-delete)
 
+
+
+
 ;; auctex
 (eval-after-load "tex"
   '(progn
      (add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t)
-     (add-to-list
-      'TeX-command-list
-      '("ps2pdf" "ps2pdf %f %pf"
-        TeX-run-command t t :help "Convert .ps to .pdf") t)
+     ;; (add-to-list
+      ;; 'TeX-command-list
+      ;; '("ps2pdf" "ps2pdf %f %pf"
+      ;;   TeX-run-command t t :help "Convert .ps to .pdf") t)
      (add-to-list
       'TeX-command-list
       '("xpdf" "open -a /Applications/Preview.app %pf"
@@ -389,37 +482,34 @@ region\) apply comment-or-uncomment to the current line"
       'TeX-command-list
       '("Glossary" "makeglossaries %s"
         TeX-run-command t t :help "Creates glossary") t)
+     (add-to-list
+      'TeX-command-list
+      '("LuaLaTex" "lualatex %(file-line-error) %(extraopts) %`%S%(PDFout)%(mode)%' %t"
+        TeX-run-command nil (latex-mode doctex-mode) :help "Run LuaLaTeX") t)
+     (setq
+      TeX-view-program-list
+      '(("PDF Viewer" "/Applications/Skim.app/Contents/SharedSupport/displayline -b %n %o %b")))
+     (setq TeX-view-program-selection '((output-pdf "PDF Viewer")))
+     (auctex-latexmk-setup)
+     (setq auctex-latexmk-inherit-TeX-PDF-mode t)
      ;; (
      ;;    "lstlisting")
      ))
 
-;; '(add-to-list 'TeX-expand-list '("%pf" file "pdf" t) t))
-;; (eval-after-load "tex"
-;;   '(add-to-list
-;;     'TeX-command-list
-;;     '("ps2pdf" "ps2pdf %f %pf"
-;;       TeX-run-command t t :help "Convert .ps to .pdf") t))
-;; (eval-after-load "tex"
-;;   '(add-to-list
-;;     'TeX-command-list
-;;     '("xpdf" "open -a /Applications/Preview.app %pf"
-;;       TeX-run-command t t :help "Open .pdf file") t))
-;; (eval-after-load "tex"
-;;   '(add-to-list
-;;     'TeX-command-list
-;;     '("adobe" "open -a /Applications/Adobe\\ Acrobat\\ 9\\ Pro/Adobe\\ Acrobat\\ Pro.app %pf"
-;;       TeX-run-command t t :help "Open .pdf file in Adobe Acrobat") t))
 (add-hook 'LaTeX-mode-hook
           (lambda ()
             ;; make sure menu bar is on.  seems to be off by default
             ;; for some reason.
             (menu-bar-mode 1)
-            (setq TeX-PDF-mode nil)))
+            (turn-on-auto-fill)
+            (setq fill-column 99)
+            ;; (setq TeX-PDF-mode nil)
+            (flyspell-mode t)
+            (yas-minor-mode t)))
             ;; (require 'predictive)
             ;; (predictive-mode t)))
-
-;; nxhtml
-;; (load "~/.emacs.d/elisp/nxhtml/autostart")
+(add-hook 'LaTeX-mode-hook 'my-latex-mode-company-setup)
+(add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
 
 ;; eshell
 (defun eshell/clear ()
@@ -429,6 +519,7 @@ region\) apply comment-or-uncomment to the current line"
   (let ((inhibit-read-only t))
 	;; simply delete the region
 	(delete-region (point-min) (point-max))))
+
 ;; To make eshell understand .pl perl extensions.
 (add-hook 'eshell-named-command-hook 'n-eshell-exec-perl)
 (defun n-eshell-exec-perl (command args)
@@ -440,14 +531,6 @@ region\) apply comment-or-uncomment to the current line"
          (throw 'eshell-replace-command
                 (eshell-parse-command "perl" args)))))
 
-;; rhtml, rinari
-(add-to-list 'auto-mode-alist '("\\.rhtml$" . rhtml-mode))
-(add-to-list 'auto-mode-alist '("\\.erb$" . rhtml-mode))
-(autoload 'rhtml-mode "rhtml-mode" "Minor Mode for editing rhtml file in Emacs" t nil)
-(add-hook 'rhtml-mode-hook
-          (lambda ()
-            (require 'rinari)
-            (rinari-launch)))
 
 ;; macro-math
 (defun macro-math-eval-region-or-line ()
@@ -469,6 +552,7 @@ region\) apply macro-math-eval-and-round-region to the current line"
 (global-set-key (kbd "C-c =") 'macro-math-eval-region-or-line)
 (global-set-key (kbd "C-c ~") 'macro-math-eval-and-round-region-or-line)
 
+
 ;; quick access to refcard
 (setq refcard-dir "~/.emacs.d/refcards/")
 (defun open-refcard-dir-file (filename)
@@ -485,18 +569,6 @@ region\) apply macro-math-eval-and-round-region to the current line"
 (global-set-key (kbd "s-r") 'open-refcard-emacs)
 (global-set-key (kbd "C-c s-o") 'open-refcard-org)
 
-;; multi-web-mode
-(require 'multi-web-mode)
-(setq mweb-default-major-mode 'html-mode)
-(setq mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-                  (js2-mode "<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
-                  (css-mode "<style +type=\"text/css\"[^>]*>" "</style>")))
-(setq mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
-(multi-web-global-mode 1)
-;; html mode
-(add-hook 'html-mode-hook
-          (lambda ()
-            (auto-fill-mode -1)))
 
 ;; css
 (add-hook 'css-mode-hook
@@ -504,10 +576,12 @@ region\) apply macro-math-eval-and-round-region to the current line"
             (setq css-indent-offset 2)))
 
 ;; idle-highlight-mode
-(setq idle-highlight-global-timer (run-with-idle-timer 0.01 :repeat 'idle-highlight-word-at-point))
+;; (setq idle-highlight-global-timer (run-with-idle-timer 0.01 :repeat 'idle-highlight-word-at-point))
 
 ;; ispell
 (setq ispell-program-name "/usr/local/bin/aspell")
+(setq ispell-current-dictionary "american")
+(global-set-key (kbd "C-c s") 'ispell-buffer)
 
 ;; clojure-mode
 (defun esk-pretty-fn ()
@@ -516,6 +590,8 @@ region\) apply macro-math-eval-and-round-region to the current line"
                                                            (match-end 1)
                                                            "\u0192") nil))))))
 (add-hook 'clojure-mode-hook 'esk-pretty-fn)
+
+
 
 ;; make M-w copy from point to end of line if region is not defined
 (defun copy-region-or-line-as-kill ()
@@ -528,9 +604,9 @@ copies the line from point to end of line."
     (copy-region-as-kill (point) (mark))))
 (global-set-key (kbd "M-w") 'copy-region-or-line-as-kill)
 
+
 (require 'windmove)
 (windmove-default-keybindings 'super)
-
 
 
 ;; matlab-mode
@@ -571,28 +647,37 @@ copies the line from point to end of line."
         (if (string= (buffer-name) "*MATLAB*")
             (progn
               (if (matlab-shell-active-p)
-                  (matlab-shell-exit))
+                  (matlab-shell-exit)
+                (kill-buffer nil))
               (if (> (count-windows) 1)
                   (delete-window))))))
     (if (matlab-shell-active-p)
         (progn
-          (switch-to-buffer "*MATLAB*")
+          (set-buffer "*MATLAB*")
           (matlab-shell-exit)
           ;; (previous-buffer)
           ))))
 (global-set-key (kbd "C-c m") 'matlab-shell)
 (global-set-key (kbd "C-c C-m") 'matlab-shell-split-win)
-(global-set-key (kbd "C-c C-n") 'matlab-shell-exit-and-close-window)
+(global-set-key (kbd "C-c n") 'matlab-shell-exit-and-close-window)
 
 (add-hook 'matlab-mode-hook
           '(lambda ()
              ;; (auto-complete-mode)
-             (setq fill-column 160)
-             (local-set-key (kbd "C-<tab>") 'matlab-toggle-show-mlint-warnings)
-             (local-set-key (kbd "C-c m") 'matlab-shell)
-             (local-set-key (kbd "C-c C-m") 'matlab-shell-split-win)
-             (local-set-key (kbd "C-c C-n") 'matlab-shell-exit-and-close-window)))
+             (setq fill-column 95)
+             ;; (local-set-key (kbd "C-<tab>") 'matlab-toggle-show-mlint-warnings)
+             ;; (setq flycheck-matlab-mlint-executable (car mlint-location))
+             ;; (local-set-key (kbd "C-c m") 'matlab-shell)
+             ;; (local-set-key (kbd "C-c C-m") 'matlab-shell-split-win)
+             ;; (local-set-key (kbd "C-c C-n") 'matlab-shell-exit-and-close-window)
+             ))
 
+;; (add-hook 'matlab-shell-mode-hook
+;;           '(lambda ()
+;;              (setq comint-input-ring-file-name "~/.matlab/R2014b/history.m")
+;;              (comint-read-input-ring)))
+
+;; (eval-after-load 'flycheck '(require 'flycheck-matlab-mlint))
 
 ;; (add-hook 'matlab-mode-hook
 ;;           '(lambda () (ac-octave-)))
@@ -606,32 +691,41 @@ copies the line from point to end of line."
 (autoload 'less-css-mode "less-css-mode" "Enter Less CSS mode." t)
 (add-to-list 'auto-mode-alist '("\\.less$" . less-css-mode))
 
+
 ;; desktop save mode
 ;; (desktop-save-mode 1)
 
 
-;;
-(global-set-key (kbd "C-x C-b") 'buffer-menu)
-
-;; rvm integration
-;; (require 'rvm)
-;; (rvm-use-default)
-
-;; evernote-mode
-;; (require 'evernote-mode)
-;; (setq evernote-username "aisforanagrams") ; optional: you can use this username as default.
-;; (setq evernote-enml-formatter-command '("w3m" "-dump" "-I" "UTF8" "-O" "UTF8")) ; option
-;; (global-set-key "\C-cec" 'evernote-create-note)
-;; (global-set-key "\C-ceo" 'evernote-open-note)
-;; (global-set-key "\C-ces" 'evernote-search-notes)
-;; (global-set-key "\C-ceS" 'evernote-do-saved-search)
-;; (global-set-key "\C-cew" 'evernote-write-note)
-;; (global-set-key "\C-cep" 'evernote-post-region)
-;; (global-set-key "\C-ceb" 'evernote-browser)
-
-
 ;; ESS
-(load "ess-site")
-;; (eval-after-load "ESS"
-;;   '(progn
-;;      (load "ess-site")))
+;; (load "ess-site")
+;; ;; (eval-after-load "ESS"
+;; ;;   '(progn
+;; ;;      (load "ess-site")))
+;; (put 'upcase-region 'disabled nil)
+
+;;; cedet
+(global-ede-mode 1)
+;; (semantic-load-enable-excessive-code-helpers)      ; Enable prototype help and smart completion
+;;(global-srecode-minor-mode 1)            ; Enable template insertion menu
+
+;; Semantic
+(global-semantic-idle-scheduler-mode)
+(global-semantic-idle-completions-mode)
+(global-semantic-decoration-mode)
+(global-semantic-highlight-func-mode)
+(global-semantic-show-unmatched-syntax-mode)
+;; (require 'sr-speedbar)
+(global-set-key (kbd "C-c C-SPC") 'sr-speedbar-toggle)
+
+
+
+(when (> emacs-major-version 21)
+  (ido-mode t)
+  (setq ido-enable-prefix nil
+        ido-enable-flex-matching t
+        ido-everywhere t
+        ido-create-new-buffer 'always
+        ido-use-filename-at-point 'guess
+        ido-max-prospects 10))
+
+(savehist-mode 1)
